@@ -21,6 +21,13 @@ que los combinan, más una cuarta con un servidor elegido libremente (`memory`).
 > - **No se probó el flujo interactivo de aprobación** de herramientas ni el aviso *Pending approval* de `.mcp.json`.
 > - El texto de cada actividad (`instrucciones/`) es el de la guía; el "agente" que decidió los pasos fui yo (Claude) y el
 >   cliente solo transportó las llamadas. Si necesitas la evidencia interactiva, repite las actividades en tu Claude Code (sección 2).
+>
+> **Comprobación posterior con herramientas nativas.** Después, los servidores de `.mcp.json` se conectaron a la propia sesión de
+> Claude Code y repetí con las herramientas `mcp__filesystem__*` (nombres reales en Claude Code) la lectura de la Actividad A
+> (`list_directory`) y toda la Actividad C. Las respuestas fueron **idénticas** a las del cliente propio:
+> `list_allowed_directories` → `/home/user/Servidores-MCP-a-un-agente`; `read_text_file /etc/hosts` y `list_directory /home/user` →
+> `Access denied - path outside allowed directories: … not in /home/user/Servidores-MCP-a-un-agente`.
+> Sigue sin haber capturas de la interfaz, y no repetí B ni D por esa vía.
 
 ## 2. Requisitos y reproducción
 
