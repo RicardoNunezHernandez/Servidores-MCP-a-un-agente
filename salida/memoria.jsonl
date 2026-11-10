@@ -1,0 +1,5 @@
+{"type":"entity","name":"Diego Ruiz","entityType":"alumno","observations":["Matricula A004","Promedio 5.50","No aprueba"]}
+{"type":"entity","name":"Hector Vega","entityType":"alumno","observations":["Matricula A008","Promedio 5.33","No aprueba"]}
+{"type":"entity","name":"Grupo Practica 1","entityType":"grupo","observations":["Promedio del grupo 7.50","6 de 8 alumnos aprueban"]}
+{"type":"relation","from":"Diego Ruiz","to":"Grupo Practica 1","relationType":"pertenece a"}
+{"type":"relation","from":"Hector Vega","to":"Grupo Practica 1","relationType":"pertenece a"}

@@ -1,0 +1,9 @@
+Servidor elegido: @modelcontextprotocol/server-memory (grafo de conocimiento persistente).
+Tarea disenada por mi:
+1) Con create_entities, registra a los dos alumnos que no aprueban en la
+   Actividad A (Diego Ruiz y Hector Vega) y al grupo, con sus promedios
+   como observaciones.
+2) Con create_relations, relaciona a cada alumno con el grupo ("pertenece a").
+3) Reinicia el servidor (proceso nuevo) y con search_nodes busca "No aprueba"
+   para comprobar que la informacion persiste.
+La memoria se guarda en salida/memoria.jsonl (variable MEMORY_FILE_PATH).
