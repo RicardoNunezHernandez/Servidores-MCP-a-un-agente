@@ -1,0 +1,55 @@
+[
+  {
+    "server": "filesystem",
+    "tool": "list_directory",
+    "args": {
+      "path": "/home/user/Servidores-MCP-a-un-agente/datos"
+    },
+    "isError": false,
+    "result": "[FILE] calificaciones.csv"
+  },
+  {
+    "server": "filesystem",
+    "tool": "read_text_file",
+    "args": {
+      "path": "/home/user/Servidores-MCP-a-un-agente/datos/calificaciones.csv"
+    },
+    "isError": false,
+    "result": "matricula,nombre,parcial1,parcial2,parcial3\nA001,Ana Torres,9.0,8.5,9.5\nA002,Bruno Salas,6.0,7.0,5.5\nA003,Carla Mendez,10.0,9.5,9.0\nA004,Diego Ruiz,5.0,6.5,5.0\nA005,Elena Castro,8.0,8.0,8.5\nA006,Fabian Ortiz,7.5,6.0,7.0\nA007,Gabriela Luna,9.5,10.0,9.0\nA008,Hector Vega,4.5,5.0,6.5\n"
+  },
+  {
+    "server": "filesystem",
+    "tool": "write_file",
+    "args": {
+      "path": "/home/user/Servidores-MCP-a-un-agente/salida/reporte.md",
+      "content": "# Reporte de calificaciones\n\n| Posición | Matrícula | Nombre | Parcial 1 | Parcial 2 | Parcial 3 | Promedio | Resultado |\n|---|---|---|---|---|---|---|---|\n| 1 | A003 | Carla Mendez | 10.0 | 9.5 | 9.0 | 9.50 | Aprueba |\n| 2 | A007 | Gabriela Luna | 9.5 | 10.0 | 9.0 | 9.50 | Aprueba |\n| 3 | A001 | An…"
+    },
+    "isError": false,
+    "result": "Successfully wrote to /home/user/Servidores-MCP-a-un-agente/salida/reporte.md"
+  },
+  {
+    "server": "filesystem",
+    "tool": "list_allowed_directories",
+    "args": {},
+    "isError": false,
+    "result": "Allowed directories:\n/home/user/Servidores-MCP-a-un-agente"
+  },
+  {
+    "server": "filesystem",
+    "tool": "read_text_file",
+    "args": {
+      "path": "/etc/hosts"
+    },
+    "isError": true,
+    "result": "Access denied - path outside allowed directories: /etc/hosts not in /home/user/Servidores-MCP-a-un-agente"
+  },
+  {
+    "server": "filesystem",
+    "tool": "list_directory",
+    "args": {
+      "path": "/home/user"
+    },
+    "isError": true,
+    "result": "Access denied - path outside allowed directories: /home/user not in /home/user/Servidores-MCP-a-un-agente"
+  }
+]
