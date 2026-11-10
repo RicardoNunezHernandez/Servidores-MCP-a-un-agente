@@ -1,0 +1,11 @@
+Verificacion de conexion (handshake MCP initialize + tools/list)
+Fecha: 2026-11-10
+
+filesystem: connected
+  serverInfo: {"name":"secure-filesystem-server","version":"1.0.0"}
+  herramientas (14): read_file, read_text_file, read_media_file, read_multiple_files, write_file, edit_file, create_directory, list_directory, list_directory_with_sizes, directory_tree, move_file, search_files, get_file_info, list_allowed_directories
+
+playwright: connected
+  serverInfo: {"name":"Playwright","version":"1.66.0-alpha-2026-11-09"}
+  herramientas (25): browser_close, browser_resize, browser_console_messages, browser_handle_dialog, browser_emulate_media, browser_evaluate, browser_file_upload, browser_drop, browser_find, browser_fill_form, browser_press_key, browser_type, browser_navigate, browser_navigate_back, browser_network_requests, browser_network_request, browser_run_code_unsafe, browser_take_screenshot, browser_snapshot, browser_click, browser_drag, browser_hover, browser_select_option, browser_tabs, browser_wait_for
+
