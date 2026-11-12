@@ -9,25 +9,25 @@ que los combinan, más una cuarta con un servidor elegido libremente (`memory`).
 - **Agente / ruta:** Claude Code (Ruta A de la guía), modelo `claude-sonnet-5-5`, en una sesión en la nube (Linux).
 - **Node.js:** v22.23.4 (npm 10.9.9).
 - **Servidores:** `@modelcontextprotocol/server-filesystem` 2.2.0, `@playwright/mcp` 0.0.85 (Playwright 1.66 alpha), `@modelcontextprotocol/server-memory`.
-- **Fecha de ejecución:** 10 de noviembre de 2026.
+- **Fecha de ejecución:** 10 y 12 de noviembre de 2026.
 
-> **Cómo se ejecutó realmente (transparencia).** La sesión corrió en un contenedor sin interfaz gráfica.
-> Las llamadas a herramientas se hicieron con un cliente MCP mínimo escrito en Node.js
-> (JSON-RPC 2.0 sobre stdio, el mismo transporte que usa Claude Code) que lanza los servidores
-> con los mismos comandos de `.mcp.json` y llama a sus herramientas. Por eso:
-> - **No hay capturas de la interfaz** de Claude Code (`/mcp`, diálogos de aprobación): no existen en este entorno.
->   La evidencia equivalente son los **registros JSON** de cada llamada (nombre, argumentos, resultado) en `evidencias/`
->   y la captura real tomada por `browser_take_screenshot`.
-> - **No se probó el flujo interactivo de aprobación** de herramientas ni el aviso *Pending approval* de `.mcp.json`.
-> - El texto de cada actividad (`instrucciones/`) es el de la guía; el "agente" que decidió los pasos fui yo (Claude) y el
->   cliente solo transportó las llamadas. Si necesitas la evidencia interactiva, repite las actividades en tu Claude Code (sección 2).
+> **Cómo se ejecutó realmente (transparencia).** La práctica se hizo en dos pasadas, en un contenedor sin interfaz gráfica:
 >
-> **Comprobación posterior con herramientas nativas.** Después, los servidores de `.mcp.json` se conectaron a la propia sesión de
-> Claude Code y repetí con las herramientas `mcp__filesystem__*` (nombres reales en Claude Code) la lectura de la Actividad A
-> (`list_directory`) y toda la Actividad C. Las respuestas fueron **idénticas** a las del cliente propio:
-> `list_allowed_directories` → `/home/user/Servidores-MCP-a-un-agente`; `read_text_file /etc/hosts` y `list_directory /home/user` →
-> `Access denied - path outside allowed directories: … not in /home/user/Servidores-MCP-a-un-agente`.
-> Sigue sin haber capturas de la interfaz, y no repetí B ni D por esa vía.
+> 1. **Primera pasada (10 de noviembre):** llamé a las herramientas con un cliente MCP mínimo en Node.js (JSON-RPC 2.0 sobre stdio,
+>    el mismo transporte de Claude Code) que lanza los servidores con los comandos de `.mcp.json`. De ahí salen los registros
+>    JSON de `evidencias/` y la actividad D.
+> 2. **Segunda pasada (12 de noviembre), siguiendo el flujo de la guía con Claude Code 2.1.322:**
+>    - `claude mcp list` mostró ambos servidores como *Pending approval* (sección 6.3 de la guía).
+>    - Lancé `claude` en un pseudo-terminal en esta carpeta y respondí a los diálogos reales: confianza en la carpeta y
+>      «2 new MCP servers found in this project» → *Enable selected*. Resultado: `.claude/settings.local.json` local (no versionado).
+>    - `/mcp` mostró **2 servidores: `filesystem` ✔ 14 tools y `playwright` ✔ 25 tools**, y `claude mcp list` los dio como *Connected*.
+>    - **Actividades A, B y C** repetidas con las herramientas nativas `mcp__filesystem__*` y `mcp__playwright__*` de la sesión de
+>      Claude Code, siguiendo el texto de `instrucciones/`. Los archivos generados (`reporte.md`, `entidades.csv`, captura) quedaron
+>      **idénticos** a los de la primera pasada. Navegar a Wikipedia ya no dio 429 con la configuración estándar (`--headless`).
+>
+> Lo que **no** hice: no pegué cada instrucción en una sesión interactiva anidada (gastaría cuota; las ejecuté en esta misma sesión,
+> que es Claude Code con esos servidores), no hay capturas de la interfaz (decisión de la persona que entrega la práctica),
+> y la actividad D sigue respaldada por la primera pasada (`server-memory` no está en `.mcp.json`).
 
 ## 2. Requisitos y reproducción
 
@@ -53,7 +53,7 @@ Notas de entorno que apliqué al ejecutar aquí (no están en el `.mcp.json` ent
 
 ## 3. Servidores MCP
 
-Configuración en [`.mcp.json`](.mcp.json) (Claude Code) y [`.agents/mcp_config.json`](.agents/mcp_config.json) (Antigravity, sin probar:
+Configuración en [`.mcp.json`](.mcp.json) (Claude Code) y [`.agents/mcp_config.json`](.agents/mcp_config.json) (Antigravity; validado solo a nivel de archivo y comandos, ver sección 6:
 solo copia los mismos comandos). Ambos se lanzan por `stdio` con `npx -y`.
 
 | Servidor | Paquete | Herramientas expuestas (en esta ejecución) |
@@ -133,7 +133,7 @@ Instrucción y tarea: [`instrucciones/actividad_d.txt`](instrucciones/actividad_
 3. **Primera captura inútil:** mostraba la cabecera del artículo y no la tabla. Lo detecté al abrir la imagen; añadí un `scrollIntoView` a la tabla y repetí la captura.
 4. **Mi primera verificación con `curl` fue incorrecta** (comparó texto del artículo, no la tabla). La rehice parseando la tabla y comparando las 32 filas.
 5. **Diferencias con la guía:** 14 herramientas de `filesystem` en vez de 16; Chrome del sistema ausente (usé el Chromium preinstalado); `--headless` activo (no se abre ventana).
-6. **Sin verificar:** flujo interactivo de Claude Code (aprobaciones, `/mcp`), Ruta B (Antigravity) y comportamiento en Windows (`cmd /c npx`).
+6. **Ruta B (Antigravity) solo validada a medias:** Antigravity no está disponible en el entorno. Comprobé que `.agents/mcp_config.json` es JSON válido y que cada `command`/`args` arranca su servidor y completa el handshake MCP (`filesystem` 14 herramientas, `playwright` 25). **No** lo cargué dentro de Antigravity: la interfaz y la carga del archivo quedan sin probar. Tampoco probé Windows (`cmd /c npx`).
 
 ## 7. Fuentes
 
