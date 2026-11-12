@@ -3,15 +3,33 @@
     "filesystem": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem",
-               "/home/user/Servidores-MCP-a-un-agente"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:/Users/453ri/Servidores-MCP-a-un-agente"
+      ],
       "env": {}
     },
     "playwright": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest", "--headless"],
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--headless"
+      ],
       "env": {}
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "C:/Users/453ri/Servidores-MCP-a-un-agente/salida/memoria.jsonl"
+      }
     }
   }
 }
