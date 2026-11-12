@@ -6,8 +6,8 @@ Práctica del Model Context Protocol (MCP): se conectan dos servidores MCP local
 (`filesystem` y `playwright`) a un agente de programación y se resuelven tres actividades
 que los combinan, más una cuarta con un servidor elegido libremente (`memory`).
 
-- **Agente / ruta:** Claude Code (Ruta A de la guía). Pasadas 1 y 2: modelo `claude-sonnet-5-5`, en una sesión en la nube (Linux). Pasada 3: modelo `claude-opus-5-5`, en Windows 11 local.
-- **Node.js:** v22.23.4 (npm 10.9.9) en la nube; en Windows no anoté la versión.
+- **Agente / ruta:** Claude Code (Ruta A de la guía). Pasadas 1 y 2: modelo `claude-sonnet-5-5`, en una sesión en la nube (Linux). Pasada 3: Claude Code 2.1.322, modelo `claude-opus-5-5`, en Windows 11 local.
+- **Node.js:** v22.23.4 (npm 10.9.9) en la nube; v24.22.1 (npx 11.19.1) en Windows.
 - **Servidores:** `@modelcontextprotocol/server-filesystem` 2.2.0, `@playwright/mcp` 0.0.85 (Playwright 1.66 alpha), `@modelcontextprotocol/server-memory`.
 - **Fecha de ejecución:** 10 y 12 de noviembre de 2026 (UTC) en la nube; 11 de noviembre de 2026 (hora local, UTC-6) en Windows.
 
