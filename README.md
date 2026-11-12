@@ -6,12 +6,12 @@ Práctica del Model Context Protocol (MCP): se conectan dos servidores MCP local
 (`filesystem` y `playwright`) a un agente de programación y se resuelven tres actividades
 que los combinan, más una cuarta con un servidor elegido libremente (`memory`).
 
-- **Agente / ruta:** Claude Code (Ruta A de la guía), modelo `claude-sonnet-5-5`, en una sesión en la nube (Linux).
-- **Node.js:** v22.23.4 (npm 10.9.9).
+- **Agente / ruta:** Claude Code (Ruta A de la guía). Pasadas 1 y 2: modelo `claude-sonnet-5-5`, en una sesión en la nube (Linux). Pasada 3: modelo `claude-opus-5-5`, en Windows 11 local.
+- **Node.js:** v22.23.4 (npm 10.9.9) en la nube; en Windows no anoté la versión.
 - **Servidores:** `@modelcontextprotocol/server-filesystem` 2.2.0, `@playwright/mcp` 0.0.85 (Playwright 1.66 alpha), `@modelcontextprotocol/server-memory`.
-- **Fecha de ejecución:** 10 y 12 de noviembre de 2026.
+- **Fecha de ejecución:** 10 y 12 de noviembre de 2026 (UTC) en la nube; 11 de noviembre de 2026 (hora local, UTC-6) en Windows.
 
-> **Cómo se ejecutó realmente (transparencia).** La práctica se hizo en dos pasadas, en un contenedor sin interfaz gráfica:
+> **Cómo se ejecutó realmente (transparencia).** La práctica se hizo en tres pasadas: las dos primeras en un contenedor sin interfaz gráfica y la tercera en Windows:
 >
 > 1. **Primera pasada (10 de noviembre):** llamé a las herramientas con un cliente MCP mínimo en Node.js (JSON-RPC 2.0 sobre stdio,
 >    el mismo transporte de Claude Code) que lanza los servidores con los comandos de `.mcp.json`. De ahí salen los registros
@@ -25,9 +25,18 @@ que los combinan, más una cuarta con un servidor elegido libremente (`memory`).
 >      Claude Code, siguiendo el texto de `instrucciones/`. Los archivos generados (`reporte.md`, `entidades.csv`, captura) quedaron
 >      **idénticos** a los de la primera pasada. Navegar a Wikipedia ya no dio 429 con la configuración estándar (`--headless`).
 >
-> Lo que **no** hice: no pegué cada instrucción en una sesión interactiva anidada (gastaría cuota; las ejecuté en esta misma sesión,
-> que es Claude Code con esos servidores), no hay capturas de la interfaz (decisión de la persona que entrega la práctica),
-> y la actividad D sigue respaldada por la primera pasada (`server-memory` no está en `.mcp.json`).
+> 3. **Tercera pasada (11 de noviembre, hora local), en Windows 11 con Claude Code, usando las herramientas MCP para los archivos:**
+>    - `filesystem` no conectaba (`Connection closed`): `.mcp.json` seguía apuntando a `/home/user/...`, que no existe en Windows.
+>      Cambié la ruta a `C:/Users/453ri/Servidores-MCP-a-un-agente` con la herramienta de edición propia de Claude Code: fue la única
+>      excepción, porque `filesystem` no estaba disponible.
+>    - Añadí `memory` con `claude mcp add --scope project` (sección 5). Tras reiniciar la sesión, las herramientas de `filesystem`,
+>      `playwright` y `memory` quedaron disponibles en Claude Code.
+>    - **Actividad D** ejecutada con las herramientas nativas `mcp__memory__*` (sección 5). Los demás archivos de esta pasada los leí y
+>      edité con `mcp__filesystem__*`, este README incluido.
+>
+> Lo que **no** hice: no pegué cada instrucción en una sesión interactiva anidada (las ejecuté en la propia sesión de Claude Code
+> con esos servidores), no hay capturas de la interfaz (decisión de la persona que entrega la práctica), en la tercera pasada no
+> repetí las actividades A, B y C, y no probé Antigravity (`.agents/mcp_config.json` conserva la ruta `/home/user/...`).
 
 ## 2. Requisitos y reproducción
 
@@ -35,8 +44,9 @@ Requisitos: Node.js ≥ 18 (con `npx`), Google Chrome, Claude Code, Git, conexi�
 
 1. Clona el repositorio y entra en la carpeta.
 2. **Cambia la ruta** del servidor `filesystem` en `.mcp.json` (y en `.agents/mcp_config.json` si usas Antigravity)
-   por la ruta absoluta de tu copia. En este repositorio es `/home/user/Servidores-MCP-a-un-agente`;
-   no contiene datos personales, pero debes sustituirla.
+   por la ruta absoluta de tu copia. En este repositorio `.mcp.json` usa `C:/Users/453ri/Servidores-MCP-a-un-agente`
+   (Windows; también en `MEMORY_FILE_PATH` de `memory`) y `.agents/mcp_config.json` usa `/home/user/Servidores-MCP-a-un-agente`.
+   Debes sustituirlas.
 3. Registro alternativo con comandos (macOS/Linux), dentro de la carpeta:
    ```bash
    claude mcp add --scope project filesystem -- npx -y @modelcontextprotocol/server-filesystem "$PWD"
@@ -44,7 +54,11 @@ Requisitos: Node.js ≥ 18 (con `npx`), Google Chrome, Claude Code, Git, conexi�
    ```bash
    claude mcp add --scope project playwright -- npx -y @playwright/mcp@latest --headless
    ```
-4. Ejecuta `claude`, aprueba los servidores del proyecto y comprueba con `/mcp` que ambos están conectados.
+   ```bash
+   claude mcp add --scope project memory -e MEMORY_FILE_PATH="$PWD/salida/memoria.jsonl" -- npx -y @modelcontextprotocol/server-memory
+   ```
+   En Windows con Git Bash, `$PWD` da `/c/Users/...`; escribe la ruta como `C:/Users/...`.
+4. Ejecuta `claude`, aprueba los servidores del proyecto y comprueba con `/mcp` que están conectados.
 5. Pega en el chat cada texto de `instrucciones/actividad_*.txt` y aprueba las llamadas.
 
 Notas de entorno que apliqué al ejecutar aquí (no están en el `.mcp.json` entregado):
@@ -119,11 +133,26 @@ El host (Claude Code) no interviene en este rechazo (su papel sería pedir aprob
 
 ## 5. Actividad D: servidor adicional
 
-Instrucción y tarea: [`instrucciones/actividad_d.txt`](instrucciones/actividad_d.txt). Registro: `evidencias/log_actividad_d.json`. Memoria resultante: `salida/memoria.jsonl`.
+Instrucción y tarea: [`instrucciones/actividad_d.txt`](instrucciones/actividad_d.txt). Memoria resultante: `salida/memoria.jsonl`.
+Registro de la primera pasada (cliente JSON-RPC propio): `evidencias/log_actividad_d.json`. La tercera pasada se describe abajo.
+
+- **Conexión:** `claude mcp add --scope project memory -e MEMORY_FILE_PATH="C:/Users/453ri/Servidores-MCP-a-un-agente/salida/memoria.jsonl" -- npx -y @modelcontextprotocol/server-memory`,
+  que lo registra en `.mcp.json`. Después reinicié la sesión de Claude Code para cargarlo.
 
 - **Servidor:** `@modelcontextprotocol/server-memory`, **publicado por el proyecto MCP** (monorepo `modelcontextprotocol/servers`, mantenedores de Anthropic y del proyecto MCP; comprobado con `npm view`).
 - **Herramientas (9):** `create_entities`, `create_relations`, `add_observations`, `delete_entities`, `delete_observations`, `delete_relations`, `read_graph`, `search_nodes`, `open_nodes`.
-- **Tarea:** guardé en un grafo a Diego Ruiz, Héctor Vega y al grupo (con sus promedios de la actividad A), los relacioné con "pertenece a", **cerré el servidor, lo arranqué de nuevo** y `search_nodes("No aprueba")` devolvió ambos alumnos y sus relaciones: la memoria persiste en `salida/memoria.jsonl`.
+- **Tarea (tercera pasada, herramientas nativas de Claude Code):**
+  1. Al arrancar, `read_graph` devolvió el grafo de la primera pasada, cargado de `salida/memoria.jsonl`. Como `create_entities` se salta
+     los nombres que ya existen, primero lo vacié con `delete_entities`. El modo automático de Claude Code bloqueó esa llamada por ser
+     destructiva; la persona que entrega la práctica la aprobó. Después `read_graph` devolvió un grafo vacío.
+  2. `create_entities`: Diego Ruiz (A004, 5.50, No aprueba), Hector Vega (A008, 5.33, No aprueba) y Grupo Practica 1 (7.50, 6 de 8
+     aprueban), con los datos de `salida/reporte.md`.
+  3. `create_relations`: cada alumno «pertenece a» Grupo Practica 1. Con `filesystem.read_text_file` comprobé que `salida/memoria.jsonl`
+     tenía las 5 líneas (3 entidades y 2 relaciones).
+  4. Reconecté el servidor (`/mcp` → `memory` → *Reconnect*, proceso nuevo) y `search_nodes("No aprueba")` devolvió a los dos alumnos con
+     sus relaciones: **la memoria persiste**.
+
+  El archivo resultante tiene el mismo contenido que el de la primera pasada (git no detecta cambios).
 - **Por qué lo considero confiable:** lo publica el mismo proyecto que define el protocolo, el código es abierto, y su alcance es mínimo: no accede a red ni a ejecución de comandos, solo lee/escribe un único archivo `.jsonl` cuya ruta fijo yo con `MEMORY_FILE_PATH`. No requirió ninguna clave. Limitación: confío en que la versión publicada en npm corresponde al código del repositorio; no audité el paquete línea a línea.
 
 ## 6. Problemas encontrados
@@ -133,7 +162,8 @@ Instrucción y tarea: [`instrucciones/actividad_d.txt`](instrucciones/actividad_
 3. **Primera captura inútil:** mostraba la cabecera del artículo y no la tabla. Lo detecté al abrir la imagen; añadí un `scrollIntoView` a la tabla y repetí la captura.
 4. **Mi primera verificación con `curl` fue incorrecta** (comparó texto del artículo, no la tabla). La rehice parseando la tabla y comparando las 32 filas.
 5. **Diferencias con la guía:** 14 herramientas de `filesystem` en vez de 16; Chrome del sistema ausente (usé el Chromium preinstalado); `--headless` activo (no se abre ventana).
-6. **Ruta B (Antigravity) solo validada a medias:** Antigravity no está disponible en el entorno. Comprobé que `.agents/mcp_config.json` es JSON válido y que cada `command`/`args` arranca su servidor y completa el handshake MCP (`filesystem` 14 herramientas, `playwright` 25). **No** lo cargué dentro de Antigravity: la interfaz y la carga del archivo quedan sin probar. Tampoco probé Windows (`cmd /c npx`).
+6. **Ruta B (Antigravity) solo validada a medias:** Antigravity no está disponible en el entorno. Comprobé que `.agents/mcp_config.json` es JSON válido y que cada `command`/`args` arranca su servidor y completa el handshake MCP (`filesystem` 14 herramientas, `playwright` 25). **No** lo cargué dentro de Antigravity: la interfaz y la carga del archivo quedan sin probar. En Windows 11 con Claude Code (tercera pasada), `"command": "npx"` sin `cmd /c` funcionó para los tres servidores; en Antigravity sigue sin probar.
+7. **Ruta de Linux en Windows (tercera pasada):** `filesystem` se cerraba al arrancar (`Connection closed`) porque recibía `/home/user/...`, que no existe en Windows. Lo resolví poniendo la ruta de Windows en `.mcp.json` y reiniciando la sesión.
 
 ## 7. Fuentes
 
