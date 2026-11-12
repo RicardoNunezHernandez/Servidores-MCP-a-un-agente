@@ -36,17 +36,16 @@ que los combinan, más una cuarta con un servidor elegido libremente (`memory`).
 >
 > Lo que **no** hice: no pegué cada instrucción en una sesión interactiva anidada (las ejecuté en la propia sesión de Claude Code
 > con esos servidores), no hay capturas de la interfaz (decisión de la persona que entrega la práctica), en la tercera pasada no
-> repetí las actividades A, B y C, y no probé Antigravity (`.agents/mcp_config.json` conserva la ruta `/home/user/...`).
+> repetí las actividades A, B y C, y no probé Antigravity (ruta B; su archivo de configuración no se entrega, ver sección 6).
 
 ## 2. Requisitos y reproducción
 
 Requisitos: Node.js ≥ 18 (con `npx`), Google Chrome, Claude Code, Git, conexión a internet.
 
 1. Clona el repositorio y entra en la carpeta.
-2. **Cambia la ruta** del servidor `filesystem` en `.mcp.json` (y en `.agents/mcp_config.json` si usas Antigravity)
-   por la ruta absoluta de tu copia. En este repositorio `.mcp.json` usa `C:/Users/453ri/Servidores-MCP-a-un-agente`
-   (Windows; también en `MEMORY_FILE_PATH` de `memory`) y `.agents/mcp_config.json` usa `/home/user/Servidores-MCP-a-un-agente`.
-   Debes sustituirlas.
+2. **Cambia la ruta** del servidor `filesystem` y la de `MEMORY_FILE_PATH` (servidor `memory`) en `.mcp.json`
+   por la ruta absoluta de tu copia. En este repositorio es `C:/Users/453ri/Servidores-MCP-a-un-agente` (Windows);
+   debes sustituirla.
 3. Registro alternativo con comandos (macOS/Linux), dentro de la carpeta:
    ```bash
    claude mcp add --scope project filesystem -- npx -y @modelcontextprotocol/server-filesystem "$PWD"
@@ -67,8 +66,8 @@ Notas de entorno que apliqué al ejecutar aquí (no están en el `.mcp.json` ent
 
 ## 3. Servidores MCP
 
-Configuración en [`.mcp.json`](.mcp.json) (Claude Code) y [`.agents/mcp_config.json`](.agents/mcp_config.json) (Antigravity; validado solo a nivel de archivo y comandos, ver sección 6:
-solo copia los mismos comandos). Ambos se lanzan por `stdio` con `npx -y`.
+Configuración en [`.mcp.json`](.mcp.json) (Claude Code, el agente usado). Los servidores se lanzan por `stdio` con `npx -y`;
+`.mcp.json` incluye además `memory` (sección 5).
 
 | Servidor | Paquete | Herramientas expuestas (en esta ejecución) |
 |---|---|---|
@@ -162,7 +161,7 @@ Registro de la primera pasada (cliente JSON-RPC propio): `evidencias/log_activid
 3. **Primera captura inútil:** mostraba la cabecera del artículo y no la tabla. Lo detecté al abrir la imagen; añadí un `scrollIntoView` a la tabla y repetí la captura.
 4. **Mi primera verificación con `curl` fue incorrecta** (comparó texto del artículo, no la tabla). La rehice parseando la tabla y comparando las 32 filas.
 5. **Diferencias con la guía:** 14 herramientas de `filesystem` en vez de 16; Chrome del sistema ausente (usé el Chromium preinstalado); `--headless` activo (no se abre ventana).
-6. **Ruta B (Antigravity) solo validada a medias:** Antigravity no está disponible en el entorno. Comprobé que `.agents/mcp_config.json` es JSON válido y que cada `command`/`args` arranca su servidor y completa el handshake MCP (`filesystem` 14 herramientas, `playwright` 25). **No** lo cargué dentro de Antigravity: la interfaz y la carga del archivo quedan sin probar. En Windows 11 con Claude Code (tercera pasada), `"command": "npx"` sin `cmd /c` funcionó para los tres servidores; en Antigravity sigue sin probar.
+6. **Ruta B (Antigravity) no se entrega:** en la primera pasada preparé un `.agents/mcp_config.json` y solo comprobé que era JSON válido y que sus comandos arrancaban los servidores; nunca lo cargué en Antigravity. Como la guía pide incluir solo el archivo de configuración del agente usado (Claude Code), lo retiré del repositorio. En Windows 11 con Claude Code (tercera pasada), `"command": "npx"` sin `cmd /c` funcionó para los tres servidores, aunque la guía indica `cmd /c npx`.
 7. **Ruta de Linux en Windows (tercera pasada):** `filesystem` se cerraba al arrancar (`Connection closed`) porque recibía `/home/user/...`, que no existe en Windows. Lo resolví poniendo la ruta de Windows en `.mcp.json` y reiniciando la sesión.
 
 ## 7. Fuentes
