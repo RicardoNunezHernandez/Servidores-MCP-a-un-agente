@@ -8,7 +8,7 @@ que los combinan, más una cuarta con un servidor elegido libremente (`memory`).
 
 - **Agente / ruta:** Claude Code (Ruta A de la guía). Pasadas 1 y 2: modelo `claude-sonnet-5-5`, en una sesión en la nube (Linux). Pasada 3: Claude Code 2.1.322, modelo `claude-opus-5-5`, en Windows 11 local.
 - **Node.js:** v22.23.4 (npm 10.9.9) en la nube; v24.22.1 (npx 11.19.1) en Windows.
-- **Servidores:** `@modelcontextprotocol/server-filesystem` 2.2.0, `@playwright/mcp` 0.0.85 (Playwright 1.66 alpha), `@modelcontextprotocol/server-memory`.
+- **Servidores:** `@modelcontextprotocol/server-filesystem` 2.2.0 en la nube y 2.3.0 en Windows, `@playwright/mcp` 0.0.85 (Playwright 1.66 alpha), `@modelcontextprotocol/server-memory` 2.1.1 en Windows (versiones de Windows leídas de la caché de `npx`).
 - **Fecha de ejecución:** 10 y 12 de noviembre de 2026 (UTC) en la nube; 11 de noviembre de 2026 (hora local, UTC-6) en Windows.
 
 > **Cómo se ejecutó realmente (transparencia).** La práctica se hizo en tres pasadas: las dos primeras en un contenedor sin interfaz gráfica y la tercera en Windows:
@@ -61,7 +61,9 @@ Requisitos: Node.js ≥ 18 (con `npx`), Google Chrome, Claude Code, Git, conexi�
 4. Ejecuta `claude`, aprueba los servidores del proyecto y comprueba con `/mcp` que están conectados.
 5. Pega en el chat cada texto de `instrucciones/actividad_*.txt` y aprueba las llamadas.
 
-Notas de entorno que apliqué al ejecutar aquí (no están en el `.mcp.json` entregado):
+En Windows (PowerShell) la guía usa `cmd /c npx`; en esta práctica `npx` directo funcionó (problema 6), y es lo que tiene `.mcp.json`.
+
+Notas de entorno que apliqué solo en la nube, pasadas 1 y 2 (no están en el `.mcp.json` entregado ni hicieron falta en Windows):
 `--no-sandbox` y `--executable-path /opt/pw-browsers/chromium` (contenedor sin Chrome del sistema, ejecución como root) y
 `--user-agent "practica-mcp-educativa/1.0 (…)"` (ver sección 6).
 
@@ -75,8 +77,8 @@ Configuración en [`.mcp.json`](.mcp.json) (Claude Code, el agente usado). Los s
 | `filesystem` | `@modelcontextprotocol/server-filesystem` | **14:** `read_file`, `read_text_file`, `read_media_file`, `read_multiple_files`, `write_file`, `edit_file`, `create_directory`, `list_directory`, `list_directory_with_sizes`, `directory_tree`, `move_file`, `search_files`, `get_file_info`, `list_allowed_directories`. Solo dentro de las carpetas indicadas al arrancar. |
 | `playwright` | `@playwright/mcp` | **25:** `browser_navigate`, `browser_evaluate`, `browser_snapshot`, `browser_take_screenshot`, `browser_click`, `browser_type`, `browser_close`, `browser_tabs`, `browser_wait_for`, … (lista completa en `evidencias/01_servidores.txt`). |
 
-La guía menciona 16 herramientas para `filesystem`. En la nube fueron las 14 de la tabla; en Windows (tercera pasada) `/mcp` mostró 16:
-las 14 más `append_file` y `copy_file`, seguramente por una versión más reciente del paquete (no lo verifiqué con `npm view`). No es un error de configuración.
+La guía menciona 16 herramientas para `filesystem`. En la nube (versión 2.2.0) fueron las 14 de la tabla; en Windows (tercera pasada) `/mcp` mostró 16:
+las 14 más `append_file` y `copy_file`. Lo comprobé en la caché de `npx`: en Windows se ejecutó la versión 2.3.0, cuyo código registra exactamente esas 16 herramientas. No es un error de configuración.
 
 Estado de conexión en Windows (`/mcp` en Claude Code, tercera pasada):
 
@@ -93,7 +95,7 @@ Registros completos de cada llamada: `evidencias/log_actividades_a_c.json`, `log
 Instrucción: [`instrucciones/actividad_a.txt`](instrucciones/actividad_a.txt).
 
 **Secuencia de herramientas:** 1) `list_directory` (`datos` → `[FILE] calificaciones.csv`) → 2) `read_text_file` (`datos/calificaciones.csv`) → 3) `write_file` (`salida/reporte.md`).
-El cálculo de promedios lo hizo el cliente en código (el servidor solo lee y escribe).
+El servidor solo lee y escribe: el cálculo de promedios lo hizo el cliente en código en la primera pasada y el modelo en las pasadas 2 y 3.
 
 **Resultado:** [`salida/reporte.md`](salida/reporte.md) con 8 alumnos, 6 aprueban, no aprueban Diego Ruiz (5.50) y Héctor Vega (5.33), promedio del grupo **7.50**. Coincide con lo esperado.
 Nota: Carla Méndez y Gabriela Luna empatan en 9.50; el orden entre ellas es el de aparición en el CSV.
@@ -194,7 +196,7 @@ Registro de la primera pasada (cliente JSON-RPC propio): `evidencias/log_activid
 2. **Wikipedia respondió HTTP 429 a Chromium headless** (y 200 a `curl`). Lo resolví enviando un `user-agent` que identifica el uso educativo, como piden las normas de Wikimedia para clientes automatizados. Una sola página, sin crawling.
 3. **Primera captura inútil:** mostraba la cabecera del artículo y no la tabla. Lo detecté al abrir la imagen; añadí un `scrollIntoView` a la tabla y repetí la captura.
 4. **Mi primera verificación con `curl` fue incorrecta** (comparó texto del artículo, no la tabla). La rehice parseando la tabla y comparando las 32 filas.
-5. **Diferencias con la guía:** 14 herramientas de `filesystem` en vez de 16; Chrome del sistema ausente (usé el Chromium preinstalado); `--headless` activo (no se abre ventana).
+5. **Diferencias con la guía:** en la nube, 14 herramientas de `filesystem` en vez de 16 (versión 2.2.0; en Windows, con la 2.3.0, fueron 16, ver sección 3) y Chrome del sistema ausente (usé el Chromium preinstalado); en ambos entornos, `--headless` activo (no se abre ventana).
 6. **Ruta B (Antigravity) no se entrega:** en la primera pasada preparé un `.agents/mcp_config.json` y solo comprobé que era JSON válido y que sus comandos arrancaban los servidores; nunca lo cargué en Antigravity. Como la guía pide incluir solo el archivo de configuración del agente usado (Claude Code), lo retiré del repositorio. En Windows 11 con Claude Code (tercera pasada), `"command": "npx"` sin `cmd /c` funcionó para los tres servidores, aunque la guía indica `cmd /c npx`.
 7. **Ruta de Linux en Windows (tercera pasada):** `filesystem` se cerraba al arrancar (`Connection closed`) porque recibía `/home/user/...`, que no existe en Windows. Lo resolví poniendo la ruta de Windows en `.mcp.json` y reiniciando la sesión.
 
