@@ -33,10 +33,11 @@ que los combinan, más una cuarta con un servidor elegido libremente (`memory`).
 >      `playwright` y `memory` quedaron disponibles en Claude Code.
 >    - **Actividad D** ejecutada con las herramientas nativas `mcp__memory__*` (sección 5). Los demás archivos de esta pasada los leí y
 >      edité con `mcp__filesystem__*`, este README incluido.
+>    - **Actividades A, B y C repetidas** con las herramientas nativas para tomar capturas de la interfaz (`evidencias/01` a `06`).
+>      `reporte.md` y `entidades.csv` quedaron con el mismo contenido (git no detectó cambios).
 >
 > Lo que **no** hice: no pegué cada instrucción en una sesión interactiva anidada (las ejecuté en la propia sesión de Claude Code
-> con esos servidores), no hay capturas de la interfaz (decisión de la persona que entrega la práctica), en la tercera pasada no
-> repetí las actividades A, B y C, y no probé Antigravity (ruta B; su archivo de configuración no se entrega, ver sección 6).
+> con esos servidores) y no probé Antigravity (ruta B; su archivo de configuración no se entrega, ver sección 6).
 
 ## 2. Requisitos y reproducción
 
@@ -74,9 +75,14 @@ Configuración en [`.mcp.json`](.mcp.json) (Claude Code, el agente usado). Los s
 | `filesystem` | `@modelcontextprotocol/server-filesystem` | **14:** `read_file`, `read_text_file`, `read_media_file`, `read_multiple_files`, `write_file`, `edit_file`, `create_directory`, `list_directory`, `list_directory_with_sizes`, `directory_tree`, `move_file`, `search_files`, `get_file_info`, `list_allowed_directories`. Solo dentro de las carpetas indicadas al arrancar. |
 | `playwright` | `@playwright/mcp` | **25:** `browser_navigate`, `browser_evaluate`, `browser_snapshot`, `browser_take_screenshot`, `browser_click`, `browser_type`, `browser_close`, `browser_tabs`, `browser_wait_for`, … (lista completa en `evidencias/01_servidores.txt`). |
 
-La guía menciona 16 herramientas para `filesystem`; en mi ejecución fueron 14. Es una diferencia de versión del servidor, no un error de configuración.
+La guía menciona 16 herramientas para `filesystem`. En la nube fueron las 14 de la tabla; en Windows (tercera pasada) `/mcp` mostró 16:
+las 14 más `append_file` y `copy_file`, seguramente por una versión más reciente del paquete (no lo verifiqué con `npm view`). No es un error de configuración.
 
-Estado de conexión (handshake `initialize` + `tools/list`): [`evidencias/01_servidores.txt`](evidencias/01_servidores.txt).
+Estado de conexión en Windows (`/mcp` en Claude Code, tercera pasada):
+
+![Servidores conectados](evidencias/01_servidores.png)
+
+Estado de conexión en la nube (handshake `initialize` + `tools/list`): [`evidencias/01_servidores.txt`](evidencias/01_servidores.txt).
 
 ## 4. Actividades A, B y C
 
@@ -92,6 +98,10 @@ El cálculo de promedios lo hizo el cliente en código (el servidor solo lee y e
 **Resultado:** [`salida/reporte.md`](salida/reporte.md) con 8 alumnos, 6 aprueban, no aprueban Diego Ruiz (5.50) y Héctor Vega (5.33), promedio del grupo **7.50**. Coincide con lo esperado.
 Nota: Carla Méndez y Gabriela Luna empatan en 9.50; el orden entre ellas es el de aparición en el CSV.
 
+**Captura (tercera pasada, vista compacta de Claude Code):** las llamadas a `filesystem` aparecen agrupadas y el resumen indica la secuencia.
+
+![Actividad A](evidencias/03_actividad_a.png)
+
 ### Actividad B: de una página web a un CSV (`playwright` + `filesystem`)
 
 Instrucción: [`instrucciones/actividad_b.txt`](instrucciones/actividad_b.txt).
@@ -105,7 +115,15 @@ El agente pasó de `playwright` a `filesystem` solo para escribir el archivo, po
 
 **Resultado:** [`salida/entidades.csv`](salida/entidades.csv): encabezado + **32 filas**; la primera es Chihuahua con 247455 km². La tabla usa la **estimación de población de 2020**; la columna de densidad está rotulada **2015** en la página.
 
-**Captura:** ![Tabla de Wikipedia](evidencias/02_actividad_b_wikipedia.png)
+**Captura de la página tomada por `playwright`:** ![Tabla de Wikipedia](evidencias/02_actividad_b_wikipedia.png)
+
+**Capturas de las llamadas (tercera pasada):** navegación y búsqueda de tablas → extracción de las 32 filas →
+**cambio de servidor** (`filesystem - write_file`) → captura y cierre del navegador.
+
+![Actividad B: navegar y listar tablas](evidencias/04a_actividad_b.png)
+![Actividad B: extraer las 32 filas](evidencias/04b_actividad_b.png)
+![Actividad B: cambio a filesystem, write_file](evidencias/04c_actividad_b.png)
+![Actividad B: captura y cierre](evidencias/04d_actividad_b.png)
 
 **Verificación manual:** comparé con la página tres filas (valores del CSV, coinciden con la captura):
 Chihuahua `247455, 3741869, 14` · Jalisco `80295, 8348151, 100` · Ciudad de México `1495, 9209944, 5966`.
@@ -130,6 +148,18 @@ list_directory /home/user → Access denied - path outside allowed directories: 
 **Quién impuso el límite:** **el servidor.** El modelo/cliente sí envió ambas peticiones; el servidor las rechazó al comparar la ruta con la lista de directorios que recibió como argumento al arrancar.
 El host (Claude Code) no interviene en este rechazo (su papel sería pedir aprobación antes de cada llamada). Un límite dentro del servidor no depende de que el modelo obedezca una instrucción del prompt.
 
+**Repetición en Windows (tercera pasada):** mismo resultado, con las rutas de Windows que pide la guía.
+```text
+list_allowed_directories → Allowed directories:
+C:\Users\453ri\Servidores-MCP-a-un-agente
+
+read_text_file C:/Windows/win.ini → Access denied - path outside allowed directories: C:\Windows\win.ini not in C:\Users\453ri\Servidores-MCP-a-un-agente
+
+list_directory C:/Users/453ri → Access denied - path outside allowed directories: C:\Users\453ri not in C:\Users\453ri\Servidores-MCP-a-un-agente
+```
+
+![Actividad C](evidencias/05_actividad_c.png)
+
 ## 5. Actividad D: servidor adicional
 
 Instrucción y tarea: [`instrucciones/actividad_d.txt`](instrucciones/actividad_d.txt). Memoria resultante: `salida/memoria.jsonl`.
@@ -152,6 +182,10 @@ Registro de la primera pasada (cliente JSON-RPC propio): `evidencias/log_activid
      sus relaciones: **la memoria persiste**.
 
   El archivo resultante tiene el mismo contenido que el de la primera pasada (git no detecta cambios).
+
+  ![Actividad D: search_nodes, entidades](evidencias/06a_actividad_d.png)
+
+  ![Actividad D: search_nodes, relaciones](evidencias/06b_actividad_d.png)
 - **Por qué lo considero confiable:** lo publica el mismo proyecto que define el protocolo, el código es abierto, y su alcance es mínimo: no accede a red ni a ejecución de comandos, solo lee/escribe un único archivo `.jsonl` cuya ruta fijo yo con `MEMORY_FILE_PATH`. No requirió ninguna clave. Limitación: confío en que la versión publicada en npm corresponde al código del repositorio; no audité el paquete línea a línea.
 
 ## 6. Problemas encontrados
